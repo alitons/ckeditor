@@ -143,7 +143,6 @@ export default class AutoTexto extends Plugin {
 			confirmButtonText: 'Adicionar',
 			cancelButtonText: 'Cancelar',
             confirmButtonColor: '#3565A0',
-			showLoaderOnConfirm: true,
 			allowOutsideClick: () => !Swal.isLoading()
 		}).then((result) => {
 			if (result.isConfirmed) {

@@ -143,7 +143,7 @@ export default class SalvarComo extends Plugin {
 					return
 				}
 
-				$(`#input-salvarcomo-tipo-${uid}`).val(''),
+				$(`#input-salvarcomo-tipo-${uid}`).val($(`#input-salvarcomo-tipo-${uid}`).find('option').eq(0).val() ?? ''),
 				$(`#input-salvarcomo-nome-${uid}`).val($(`#input-salvarcomo-nome-${uid} options`).eq(0).val()),
 
 				Swal.fire({
