@@ -110,6 +110,12 @@ export default class DocumentoModelo extends Plugin {
 			title: 'Modelo de Documento',
 			html: `
 			<div class="row w-100">
+				${(this.options.categoria) ? `<div class="col-12 mb-3" style="text-align: justify;">
+					<div class="form-group">
+						<select class="form-select categoriamodeloselect">
+						</select>
+					</div>
+				</div>` : ''}
 				<div class="col-12" style="text-align: justify;">
 					<div class="form-group">
 						<select class="form-select documentomodeloselect">
@@ -122,49 +128,12 @@ export default class DocumentoModelo extends Plugin {
 			</div>
 			`,
             willOpen: () => {
-                const self = this
-                let parametros = {
-                    dropdownParent: $('.swal2-popup'),
-                    placeholder: this.options?.placeholder ?? 'Selecione uma opção',
-                }
+                
+                $('.categoriamodeloselect')
+                .select2(this.parametrosDocumentoModeloCategoria())
 
-                if(this.options?.ajax) {
-                    parametros['ajax'] = {
-                        url: this.options?.ajax?.url ?? '',
-                        method: this.options?.ajax?.method ?? 'GET',
-                        dataType: this.options?.ajax?.dataType ?? 'json',
-                        data: function(params) {
-                            let p = {
-                                search: params.term,
-                                page: params.page || 1
-                            }
-                            if(self.options?.ajax?.data) {
-                                p = {...p, ...self.options?.ajax?.data}
-                            }
-                            return p
-                        },
-                        delay: this.options?.ajax?.delay ?? 250,
-                        processResults: function (data) {
-                            return {
-                                results: data.data.map(function(item) {
-                                    return {
-                                        id: self.options?.ajax?.results?.autotexto ? item[self.options?.ajax?.results?.autotexto] : item.autotexto,
-                                        text: self.options?.ajax?.results?.titulo ? item[self.options?.ajax?.results?.titulo] : item.titulo
-                                    }
-                                }),
-                                pagination: {
-                                    more: data.current_page < data.last_page
-                                }
-                            };
-                        }
-                    }
-                } else {
-                    let options = this.options?.options ?? [];
-                    options.unshift({id: '', text: 'Selecione uma opção'})
-                    parametros['data'] = options
-                }
-
-                $('.documentomodeloselect').select2(parametros)
+                $('.documentomodeloselect')
+                .select2(this.parametrosDocumentoModelo())
                 .on('change', function (e) {
                     $('.documentomodeloviewer').html(e.target.value)
                 })
@@ -183,4 +152,97 @@ export default class DocumentoModelo extends Plugin {
 
 		return val;
 	}
+
+    parametrosDocumentoModeloCategoria() {
+        const self = this
+        let parametros = {
+            dropdownParent: $('.swal2-popup'),
+            placeholder: this.options?.categoria?.placeholder ?? 'Selecione uma categoria',
+        }
+
+        if(this.options?.categoria?.ajax) {
+            parametros['ajax'] = {
+                url: this.options?.categoria?.ajax?.url ?? '',
+                method: this.options?.categoria?.ajax?.method ?? 'GET',
+                dataType: this.options?.categoria?.ajax?.dataType ?? 'json',
+                data: function(params) {
+                    let p = {
+                        search: params.term,
+                        page: params.page || 1
+                    }
+                    if(self.options?.categoria?.ajax?.data) {
+                        p = {...p, ...self.options?.categoria?.ajax?.data}
+                    }
+                    return p
+                },
+                delay: this.options?.categoria?.ajax?.delay ?? 250,
+                processResults: function (data) {
+                    return {
+                        results: data.data.map(function(item) {
+                            return {
+                                id: self.options?.categoria?.ajax?.results?.autotexto ? item[self.options?.categoria?.ajax?.results?.autotexto] : item.autotexto,
+                                text: self.options?.categoria?.ajax?.results?.titulo ? item[self.options?.categoria?.ajax?.results?.titulo] : item.titulo
+                            }
+                        }),
+                        pagination: {
+                            more: data.current_page < data.last_page
+                        }
+                    };
+                }
+            }
+        } else {
+            let options = this.options?.categoria?.options ?? [];
+            options.unshift({id: '', text: 'Selecione uma opção'})
+            parametros['data'] = options
+        }
+
+        return parametros;
+    }
+
+    parametrosDocumentoModelo() {
+        const self = this
+        let parametros = {
+            dropdownParent: $('.swal2-popup'),
+            placeholder: this.options?.placeholder ?? 'Selecione uma opção',
+        }
+
+        if(this.options?.ajax) {
+            parametros['ajax'] = {
+                url: this.options?.ajax?.url ?? '',
+                method: this.options?.ajax?.method ?? 'GET',
+                dataType: this.options?.ajax?.dataType ?? 'json',
+                data: function(params) {
+                    let p = {
+                        search: params.term,
+                        page: params.page || 1,
+                        categoria: $('.categoriamodeloselect').val() ?? null,
+                    }
+                    if(self.options?.ajax?.data) {
+                        p = {...p, ...self.options?.ajax?.data}
+                    }
+                    return p
+                },
+                delay: this.options?.ajax?.delay ?? 250,
+                processResults: function (data) {
+                    return {
+                        results: data.data.map(function(item) {
+                            return {
+                                id: self.options?.ajax?.results?.autotexto ? item[self.options?.ajax?.results?.autotexto] : item.autotexto,
+                                text: self.options?.ajax?.results?.titulo ? item[self.options?.ajax?.results?.titulo] : item.titulo
+                            }
+                        }),
+                        pagination: {
+                            more: data.current_page < data.last_page
+                        }
+                    };
+                }
+            }
+        } else {
+            let options = this.options?.options ?? [];
+            options.unshift({id: '', text: 'Selecione uma opção'})
+            parametros['data'] = options
+        }
+
+        return parametros;
+    }
 }

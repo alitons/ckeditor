@@ -33,6 +33,25 @@ watchdog.create( document.querySelector( '.editor' ), {
 			}
 		},
 		documentoModeloOptions: {
+			categoria: {
+				options: [
+					{
+						autotexto: 'teste 1',
+						titulo: 'Primeiro teste'
+					}
+				],
+				ajax: {
+					url: 'http://10.10.18.10/compras/api/teste',
+					method: 'GET',
+					data: {
+						usuario: 'usuario',
+					},
+					results: {
+						autotexto: 'autotexto',
+						titulo: 'titulo'
+					}
+				}
+			},
 			options: [
 				{
 					autotexto: 'teste 1',

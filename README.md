@@ -74,7 +74,13 @@ watchdog.create( document.querySelector( '.editor' ), {
 			}
 		},
 		documentoModeloOptions: {
-			ajax: {
+            categoria: {
+                ajax: {
+                    url: 'http://url-da-api-da-categoria-de-modelos',
+                    method: 'GET'
+                },
+            },
+            ajax: {
 				url: 'http://url-da-api-dos-modelos',
 				method: 'GET'
 			}
