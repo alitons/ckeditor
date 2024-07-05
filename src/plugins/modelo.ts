@@ -180,8 +180,8 @@ export default class DocumentoModelo extends Plugin {
                     return {
                         results: data.data.map(function(item) {
                             return {
-                                id: self.options?.categoria?.ajax?.results?.autotexto ? item[self.options?.categoria?.ajax?.results?.autotexto] : item.autotexto,
-                                text: self.options?.categoria?.ajax?.results?.titulo ? item[self.options?.categoria?.ajax?.results?.titulo] : item.titulo
+                                id: self.options?.categoria?.ajax?.results?.id ? item[self.options?.categoria?.ajax?.results?.id] : item.id,
+                                text: self.options?.categoria?.ajax?.results?.value ? item[self.options?.categoria?.ajax?.results?.value] : item.value
                             }
                         }),
                         pagination: {
