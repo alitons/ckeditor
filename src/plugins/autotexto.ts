@@ -5,7 +5,7 @@ import { ButtonView } from '@ckeditor/ckeditor5-ui';
 import { HtmlDataProcessor } from '@ckeditor/ckeditor5-engine';
 import $ from "jquery"; 
 import 'select2/dist/js/select2.full.min'
-import 'select2/dist/css/select2.min.css'
+import * as css from 'select2/dist/css/select2.min.css'
 
 export default class AutoTexto extends Plugin {
 	options = [] as any
