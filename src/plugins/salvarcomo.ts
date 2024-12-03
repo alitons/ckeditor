@@ -4,6 +4,7 @@ import { createDropdown } from '@ckeditor/ckeditor5-ui';
 import { HtmlDataProcessor } from '@ckeditor/ckeditor5-engine';
 import Swal from 'sweetalert2'
 import axios from 'axios'
+import $ from "jquery"; 
 
 export default class SalvarComo extends Plugin {
 	options = [] as any

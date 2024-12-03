@@ -2,21 +2,15 @@
 # CkEditor + Plugins SEI, AutoTexto e Documento Modelo
 
 ### 💻 Requisitos
-
-**jQuery:** ^3.7
-
-**Select2:** ^4.1.x
-
 **Bootstrap:** 5.x (Opcional)
+
 ## Modo de usar
 
-Importe o Bootstrap, jQuery e Select2 em seu projeto
+Importe o Bootstrap em seu projeto
 
-Adicione o diretório build (desse repositório) em seu projeto abaixo do jQuery e Select2
+Adicione o diretório build (desse repositório)
 
 ``` html
-<script src="https://code.jquery.com/jquery-3.7.0.min.js" integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 ...
 <script src="../build/ckeditor.js"></script>
 ...

@@ -4,11 +4,11 @@ export default class DocumentoModelo extends Plugin {
     init(): void;
     openModalDocumentoModelo(): Promise<string | undefined>;
     parametrosDocumentoModeloCategoria(): {
-        dropdownParent: JQuery<HTMLElement>;
+        dropdownParent: any;
         placeholder: any;
     };
     parametrosDocumentoModelo(): {
-        dropdownParent: JQuery<HTMLElement>;
+        dropdownParent: any;
         placeholder: any;
     };
 }

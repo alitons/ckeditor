@@ -3,6 +3,7 @@ import { Plugin } from '@ckeditor/ckeditor5-core';
 import { createDropdown } from '@ckeditor/ckeditor5-ui';
 import { HtmlDataProcessor } from '@ckeditor/ckeditor5-engine';
 import axios from 'axios'
+import $ from "jquery"; 
 
 class ImportarSei extends Plugin {
 	options = [] as any

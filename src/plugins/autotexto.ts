@@ -3,6 +3,8 @@ import Swal from 'sweetalert2'
 import { Plugin } from '@ckeditor/ckeditor5-core';
 import { ButtonView } from '@ckeditor/ckeditor5-ui';
 import { HtmlDataProcessor } from '@ckeditor/ckeditor5-engine';
+import $ from "jquery"; 
+import 'select2/dist/js/select2.full'
 
 export default class AutoTexto extends Plugin {
 	options = [] as any
