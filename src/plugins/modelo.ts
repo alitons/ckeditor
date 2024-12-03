@@ -4,7 +4,8 @@ import { Plugin } from '@ckeditor/ckeditor5-core';
 import { ButtonView } from '@ckeditor/ckeditor5-ui';
 import { HtmlDataProcessor } from '@ckeditor/ckeditor5-engine';
 import $ from "jquery"; 
-import 'select2/dist/js/select2.full'
+import 'select2/dist/js/select2.full.min'
+import 'select2/dist/css/select2.min.css'
 
 export default class DocumentoModelo extends Plugin {
 	options = [] as any
