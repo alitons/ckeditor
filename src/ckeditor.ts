@@ -88,6 +88,7 @@ import AutoTexto from './plugins/autotexto';
 import DocumentoModelo from './plugins/modelo';
 import SalvarComo from './plugins/salvarcomo';
 
+import './css/custom.css';
 
 // You can read more about extending the build with additional plugins in the "Installing plugins" guide.
 // See https://ckeditor.com/docs/ckeditor5/latest/installation/plugins/installing-plugins.html for details.

@@ -2,21 +2,32 @@
 import Swal from 'sweetalert2'
 import { Plugin } from '@ckeditor/ckeditor5-core';
 import { ButtonView } from '@ckeditor/ckeditor5-ui';
+import { createDropdown } from '@ckeditor/ckeditor5-ui';
 import { HtmlDataProcessor } from '@ckeditor/ckeditor5-engine';
 import $ from "jquery"; 
 import 'select2/dist/js/select2.full.min'
-import * as css from 'select2/dist/css/select2.min.css'
+import 'select2/dist/css/select2.css'
+
+window.$ = $;
+window.jQuery = $;
 
 export default class DocumentoModelo extends Plugin {
-	options = [] as any
+    options = [] as any;
+    uid = Math.random().toString(36).substring(7);
     init() {
-        const editor = this.editor;
+        this.createPopup()
+        const toolbar = this.editor.config.get('toolbar') as any;
+        this.options = toolbar!.documentoModeloOptions
+    }
 
-        editor.ui.componentFactory.add( 'documentoModelo', () => {
-            const button = new ButtonView();
+    createPopup() {
+        this.editor.ui.componentFactory.add( 'documentoModelo', () => {
+            
+            const dropdown = createDropdown( this.editor.locale );
 
-            button.set( {
-                label: 'Documento Modelo',
+            // Configure dropdown's button properties:
+            dropdown.buttonView.set( {
+                label: 'Modelos',
                 icon: `<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="272px" height="272px" version="1.1" style="shape-rendering:geometricPrecision; text-rendering:geometricPrecision; image-rendering:optimizeQuality; fill-rule:evenodd; clip-rule:evenodd"
                 viewBox="0 0 272 272"
                  xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -58,78 +69,136 @@ export default class DocumentoModelo extends Plugin {
                  </g>
                 </svg>`,
                 withText: true,
-				tooltip: true
-            });
+                tooltip: true
+            } );
 
-			//VERIFICA SE O EDITOR ESTÁ DESATIVADO
+            dropdown.render();
+
+            //VERIFICA SE O EDITOR ESTÁ DESATIVADO
             setTimeout(() => {
-                if(editor.isReadOnly) button.isEnabled = false
+                if(this.editor.isReadOnly) dropdown.isEnabled = false
             }, 500)
 
             // DESABILITA O BOTÃO QUANDO O EDITOR ESTIVER DESABILITADO OU NÃO ESTIVER ATIVO
-            editor.model.document.on('change:data', () => {
-                if(editor.isReadOnly) button.isEnabled = false
-                else button.isEnabled = true
+            this.editor.model.document.on('change:data', () => {
+                if(this.editor.isReadOnly) dropdown.isEnabled = false
+                else dropdown.isEnabled = true
             })
 
-			const toolbar = editor.config.get('toolbar') as any;
+            const toolbar = this.editor.config.get('toolbar') as any;
 
-			if(!toolbar!.documentoModeloOptions || toolbar!.documentoModeloOptions === undefined || [null, undefined, ''].includes(toolbar!.documentoModeloOptions)) {
-				button.isEnabled = false
-			}
+            if(!toolbar!.seiOptions || toolbar!.seiOptions === undefined || [null, undefined, ''].includes(toolbar!.seiOptions?.url)) {
+                dropdown.isEnabled = false
+            }
+            
+            // CRIAR O ELEMENTO IGUAL AO ELEMENTO DE BUSCA
+            const input = document.createElement( 'div' );
+            input.classList.add('documento_modelo_container')
+            input.innerHTML = `<div class="ck ck-reset ck-dropdown__panel ck-dropdown__panel_se ck-dropdown__panel-visible ck-dropdown__panel_documento_modelo" style="left: initial;right: 0;">
+                <form class="ck ck-find-and-replace-form">
+                    <div class="ck ck-form__header">
+                        <h2 class="ck ck-form__header__label">Documento Modelo</h2>
+                    </div>
+                    <fieldset class="ck ck-find-and-replace-form__find" style="margin-bottom: 0px; padding-bottom: 0px;">
+                        <div class="ck ck-labeled-field-view ck-labeled-field-view_empty">
+                            <label>Categoria</label>
+                            <div class="ck ck-labeled-field-view__input-wrapper">
+                                <select class="ck ck-input ck-input-text_empty ck-input-select categoriamodeloselect" id="search-input-categoria-document-modelo-${this.uid}">
+                                </select>
+                            </div>
+                            <div class="ck ck-labeled-field-view__status ck-labeled-field-view__status_error" id="search-error-sei-${this.uid}" role="alert"></div>
+                        </div>
+                    </fieldset>
+                    <fieldset class="ck ck-find-and-replace-form__find">
+                        <div class="ck ck-labeled-field-view ck-labeled-field-view_empty">
+                            <label>Modelo</label>
+                            <div class="ck ck-labeled-field-view__input-wrapper">
+                                <select class="ck ck-input ck-input-text_empty ck-input-select documentomodeloselect" id="search-input-documento-modelo-${this.uid}">
+                                </select>
+                            </div>
+                            <div class="ck ck-labeled-field-view__status ck-labeled-field-view__status_error" id="search-error-sei-${this.uid}" role="alert"></div>
+                        </div>
+                    </fieldset>
+                    <fieldset class="ck ck-find-and-replace-form__replace" id="search-actions-documento-modelo-${this.uid}" style="display: none">
+                        <div class="ck ck-labeled-field-view ck-disabled ck-labeled-field-view_empty" style="background: #e9ecef; border: 1px solid #ced4da; padding: 5px; height: 200px; overflow: auto; text-align: initial;">
+                            <div class="ck" id="search-result-documento-modelo-${this.uid}"></div>
+                        </div>
+                        <button class="ck ck-button ck-button-save ck-off ck-button_with-text" type="button" tabindex="-1" id="search-add-documento-modelo-${this.uid}">
+                            <svg class="ck ck-icon ck-reset_all-excluded ck-icon_inherit-color ck-button__icon" viewBox="0 0 20 20"><path d="M6.972 16.615a.997.997 0 0 1-.744-.292l-4.596-4.596a1 1 0 1 1 1.414-1.414l3.926 3.926 9.937-9.937a1 1 0 0 1 1.414 1.415L7.717 16.323a.997.997 0 0 1-.745.292z"></path></svg>
+                            <span class="ck ck-button__label">Importar</span>
+                        </button>
+                    </fieldset>
+                </form>
+            </div>`;
+            dropdown.panelView.element.appendChild( input );
 
+            const self = this;
 
-            // Execute a callback function when the button is clicked.
-            button.on( 'execute', async () => {
+            // EXECUTAR APENAS QUANDO O DROPDOWN FOR ABERTO
+            dropdown.on( 'change:isOpen', ( evt, name, isOpen ) => {
+                if ( isOpen ) {
+                        $('.categoriamodeloselect')
+                        .select2(this.parametrosDocumentoModeloCategoria())
 
-				const toolbar = editor.config.get('toolbar') as any;
+                        $('.documentomodeloselect')
+                        .select2(this.parametrosDocumentoModelo())
+                        .on('select2:select', function (e) {
+                            console.log('selecionado', $(`#search-actions-documento-modelo-${self.uid}`));
+                            $(`#search-actions-documento-modelo-${self.uid}`).show()
+                            $(`#search-result-documento-modelo-${self.uid}`).html(e.target.value)
+                        })
+                }
+            });
 
-				if(!toolbar!.documentoModeloOptions || toolbar!.documentoModeloOptions === undefined || [null, undefined, ''].includes(toolbar!.documentoModeloOptions)) {
-					button.isEnabled = false
-					return Swal.fire('Erro', 'Nenhum modelo foi encontrado', 'error')
-				}
+            $('body').on('keyup', `.ck-error`, function() {
+                $(this).removeClass('ck-error')
+                $(`#search-error-sei-${this.uid}`).html('')
+            });
 
-				this.options = toolbar!.documentoModeloOptions
+            $('body').on('click', `#search-add-documento-modelo-${this.uid}`, async function() {
+                const conteudo = $(`#search-result-documento-modelo-${self.uid}`).html()
+                const viewDocument = self.editor.editing.view.document;
+                const htmlDP = new HtmlDataProcessor( viewDocument  );
+                const viewFragment = htmlDP.toView( conteudo );
+                const modelFragment = self.editor.data.toModel( viewFragment ) as any;
 
-				let conteudo = await this.openModalDocumentoModelo() as any
+                self.editor.model.change(writer => {
+                    writer.remove(writer.createRangeIn(self.editor.model.document.getRoot()));
+                    self.editor.model.insertContent(modelFragment);
+                });
 
-				if(!conteudo || ['', null, undefined].includes(conteudo)) return
+                // LIMPA O CAMPO DE BUSCA
+                $(`#search-input-documento-modelo-${self.uid}`).val('')
+                $(`#search-actions-documento-modelo-${self.uid}`).hide()
 
+            });
 
-				const viewDocument = editor.editing.view.document;
-				const htmlDP = new HtmlDataProcessor( viewDocument  );
-				const viewFragment = htmlDP.toView( conteudo );
-				const modelFragment = editor.data.toModel( viewFragment ) as any;
-
-				editor.model.insertContent( modelFragment );
-            } );
-
-            return button;
-        } );
+            return dropdown;
+        });
     }
 
-	async openModalDocumentoModelo(){
-		const val = await Swal.fire({
-			title: 'Modelo de Documento',
-			html: `
-			<div class="row w-100">
-				${(this.options.categoria) ? `<div class="col-12 mb-3" style="text-align: justify;">
-					<div class="form-group">
-						<select class="form-select categoriamodeloselect">
-						</select>
-					</div>
-				</div>` : ''}
-				<div class="col-12" style="text-align: justify;">
-					<div class="form-group">
-						<select class="form-select documentomodeloselect">
-						</select>
-					</div>
-				</div>
-				<div class="col-12 mt-5">
-					<div readonly class="form-control documentomodeloviewer" style="height: 200px; text-align: justify; overflow: auto;"></div>
-				</div>
-			</div>
-			`,
+    async openModalDocumentoModelo(){
+        const val = await Swal.fire({
+            title: 'Modelo de Documento',
+            html: `
+            <div class="row w-100">
+                ${(this.options.categoria) ? `<div class="col-12 mb-3" style="text-align: justify;">
+                    <div class="form-group">
+                        <select class="form-select categoriamodeloselect">
+                        </select>
+                    </div>
+                </div>` : ''}
+                <div class="col-12" style="text-align: justify;">
+                    <div class="form-group">
+                        <select class="form-select documentomodeloselect">
+                        </select>
+                    </div>
+                </div>
+                <div class="col-12 mt-5">
+                    <div readonly class="form-control documentomodeloviewer" style="height: 200px; text-align: justify; overflow: auto;"></div>
+                </div>
+            </div>
+            `,
             willOpen: () => {
                 
                 $('.categoriamodeloselect')
@@ -141,25 +210,25 @@ export default class DocumentoModelo extends Plugin {
                     $('.documentomodeloviewer').html(e.target.value)
                 })
             },
-			showCancelButton: true,
-			confirmButtonText: 'Adicionar',
-			cancelButtonText: 'Cancelar',
+            showCancelButton: true,
+            confirmButtonText: 'Adicionar',
+            cancelButtonText: 'Cancelar',
             confirmButtonColor: '#3565A0',
-			allowOutsideClick: () => !Swal.isLoading()
-		}).then((result) => {
-			if (result.isConfirmed) {
-				const documentomodeloviewer = document.querySelector('.documentomodeloviewer')
-				return documentomodeloviewer!.innerHTML
-			}
-		})
+            allowOutsideClick: () => !Swal.isLoading()
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const documentomodeloviewer = document.querySelector('.documentomodeloviewer')
+                return documentomodeloviewer!.innerHTML
+            }
+        })
 
-		return val;
-	}
+        return val;
+    }
 
     parametrosDocumentoModeloCategoria() {
         const self = this
         let parametros = {
-            dropdownParent: $('.swal2-popup'),
+            dropdownParent: $('.ck-dropdown__panel_documento_modelo'),
             placeholder: this.options?.categoria?.placeholder ?? 'Selecione uma categoria',
         }
 
@@ -205,7 +274,7 @@ export default class DocumentoModelo extends Plugin {
     parametrosDocumentoModelo() {
         const self = this
         let parametros = {
-            dropdownParent: $('.swal2-popup'),
+            dropdownParent: $('.ck-dropdown__panel_documento_modelo'),
             placeholder: this.options?.placeholder ?? 'Selecione uma opção',
         }
 
