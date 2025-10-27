@@ -1,3 +1,90 @@
 .select2-container--open {
     background-color: white !important;
 }
+
+ul.select2-results__options {
+  padding: 10px !important;
+  background: #fff !important;
+}
+
+:root {
+  --depth: -1;
+}
+
+.num-list {
+  --_depth: calc(var(--depth, -1) + 1);
+  --depth: var(--_depth);   
+  counter-reset: numitem 0;
+  margin: 0;
+  padding: 0;
+}
+
+.num-list[start="2"] {counter-reset: numitem 1;}
+.num-list[start="3"] {counter-reset: numitem 2;}
+.num-list[start="4"] {counter-reset: numitem 3;}
+.num-list[start="5"] {counter-reset: numitem 4;}
+.num-list[start="6"] {counter-reset: numitem 5;}
+.num-list[start="7"] {counter-reset: numitem 6;}
+.num-list[start="8"] {counter-reset: numitem 7;}
+.num-list[start="9"] {counter-reset: numitem 8;}
+.num-list[start="10"] {counter-reset: numitem 9;}
+.num-list[start="11"] {counter-reset: numitem 10;}
+.num-list[start="12"] {counter-reset: numitem 11;}
+.num-list[start="13"] {counter-reset: numitem 12;}
+.num-list[start="14"] {counter-reset: numitem 13;}
+.num-list[start="15"] {counter-reset: numitem 14;}
+.num-list[start="16"] {counter-reset: numitem 15;}
+.num-list[start="17"] {counter-reset: numitem 16;}
+.num-list[start="18"] {counter-reset: numitem 17;}
+.num-list[start="19"] {counter-reset: numitem 18;}
+.num-list[start="20"] {counter-reset: numitem 19;}
+
+.num-list > .num-li {
+  --depth: var(--depth);
+  padding-inline-start: calc((var(--depth) + 1) * var(--indent));
+  counter-increment: numitem;
+  position: relative;
+}
+
+.num-list:not([data-style]) > .num-li::before,
+.num-list[data-style="decimal"] > .num-li::before {
+  content: counters(numitem, ".") ". ";
+}
+
+.num-list[data-style="lower-alpha"] > .num-li::before {
+  content: counter(numitem, lower-alpha) ") ";
+}
+
+.num-list[data-style="upper-alpha"] > .num-li::before {
+  content: counter(numitem, upper-alpha) ") ";
+}
+
+.num-list[data-style="lower-roman"] > .num-li::before {
+  content: counter(numitem, lower-roman) ". ";
+}
+
+.num-list[data-style="upper-roman"] > .num-li::before {
+  content: counter(numitem, upper-roman) ". ";
+}
+
+.num-list > .num-li::before {
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
+.num-list > .num-li :first-child {text-indent: 20px;}
+.num-list .num-list > .num-li :first-child {text-indent: 35px;}
+.num-list .num-list .num-list > .num-li :first-child {text-indent: 50px;}
+.num-list .num-list .num-list .num-list > .num-li :first-child {text-indent: 65px;}
+.num-list .num-list .num-list .num-list .num-list > .num-li :first-child {text-indent: 80px;}
+
+.num-list[data-style="lower-alpha"] > .num-li :first-child,
+.num-list[data-style="upper-alpha"] > .num-li :first-child,
+.num-list[data-style="lower-roman"] > .num-li :first-child,
+.num-list[data-style="upper-roman"] > .num-li :first-child {text-indent: 20px !important; }
+
+.num-list,
+.num-list > .num-li {
+  text-indent: 0px !important;
+}

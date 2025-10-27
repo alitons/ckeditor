@@ -90,6 +90,10 @@ watchdog.create( document.querySelector( '.editor' ), {
 				}
 			]
 		},
+		listaNumeradaOptions: {
+			disableEnter: true,
+			forceList: 3,
+		},
 		items: [
 			'salvarcomo',
 			'|',
@@ -100,9 +104,13 @@ watchdog.create( document.querySelector( '.editor' ), {
 			'link',
 			'bulletedList',
 			'numberedList',
+			'numberedDivListSplit',
 			'|',
 			'undo',
 			'redo',
+			'|',
+			'indent',
+			'outdent',
 			'|',
 			'autotexto',
 			'importarsei',
@@ -111,6 +119,18 @@ watchdog.create( document.querySelector( '.editor' ), {
 	},
 })
 
+let prevState = watchdog.state;
+
+watchdog.on( 'stateChange', () => {
+	const currentState = watchdog.state;
+
+	if ( currentState === 'crashedPermanently' ) {
+		watchdog.editor.enableReadOnlyMode( 'crashed-editor' );
+	}
+
+	prevState = currentState;
+} );
+
 function initEditorPage(editor) {
 	console.log('Editor criado:', editor);
 	const toolbarContainer = document.querySelector('.document-editor__toolbar');
@@ -118,3 +138,10 @@ function initEditorPage(editor) {
 
 	editor.enableReadOnlyMode( true );
 }
+
+document.getElementById('get-html').addEventListener('click', () => {
+	const editor = watchdog.editor;
+	const htmlContent = editor.getData();
+	const htmlTextarea = document.querySelector('.html textarea');
+	htmlTextarea.value = htmlContent;
+});

@@ -256,6 +256,39 @@ erros: {
 }
 ```
 
+### 🔧 Lista Numerada [modificada]
+
+Para adicionar ao toolbar adicione a opção ``numberedDivListSplit`` na lista de ferramentas.
+
+#### configurações adicionais
+
+Para personalizar o options crie a opção ``listaNumeradaOptions`` no tollbar.
+
+```javascript
+...
+toolbar: {
+    ...
+    listaNumeradaOptions: {
+        disableEnter: true,
+        forceList: 2,
+    },
+    ...
+    items: [
+        ...
+    ]
+    ...
+}
+...
+```
+
+onde:
+
+| Chave | Valor | Descrição
+| :-- | :-- | :--
+| disableEnter | Boolean | Habilita/Desabilita a funcionalidade de criar um novo item ao pressionar a tecla enter
+|forceList | Integer | um número inteiro que representa o sequencial inicial da listagem
+
+Se for definido um valor para o ``forceList`` obrigatóriamente todo o conteúdo será adicionado dentro de um lista.
 
 ### 🔧 Salvar Como
 

@@ -87,6 +87,8 @@ import ImportarSei from './plugins/sei';
 import AutoTexto from './plugins/autotexto';
 import DocumentoModelo from './plugins/modelo';
 import SalvarComo from './plugins/salvarcomo';
+import NumberedDivList from './plugins/listaNumerada';
+import NumberedDivListSplit from './plugins/NumberedDivListSplit';
 
 import './css/custom.css';
 
@@ -169,7 +171,9 @@ class Editor extends DecoupledEditor {
 		AutoTexto,
 		ImportarSei,
         DocumentoModelo,
-		SalvarComo
+		SalvarComo,
+		NumberedDivList,
+		NumberedDivListSplit
 	];
 
 	public static override defaultConfig = {
@@ -218,7 +222,8 @@ class Editor extends DecoupledEditor {
 				'autotexto',
 				'importarsei',
 				'documentoModelo',
-				'salvarcomo'
+				'salvarcomo',
+				'numberedDivListSplit'
 			],
 			shouldNotGroupWhenFull: true
 		},
