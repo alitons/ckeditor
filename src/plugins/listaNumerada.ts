@@ -95,7 +95,6 @@ export default class NumberedDivList extends Plugin {
         classes: 'num-list',
       },
       model: (viewElement, { writer }) => {
-        console.log('upcast num-list', viewElement);
         const attrs: any = {};
 
         const ds = viewElement.getAttribute('data-style');
@@ -217,75 +216,75 @@ export default class NumberedDivList extends Plugin {
 
 
     // não permitir que saia da lista caso exista o atributo data-block
-    viewDoc.on('keydown', (evt, data) => {
-      if (data.keyCode !== keyCodes.enter || data.shiftKey) return;
-      if (!editor.model.document.selection.isCollapsed) return;
+    // viewDoc.on('keydown', (evt, data) => {
+    //   if (data.keyCode !== keyCodes.enter || data.shiftKey) return;
+    //   if (!editor.model.document.selection.isCollapsed) return;
 
-      if(config?.disableEnter === true) {
-        return;
-      }
+    //   if(config?.disableEnter === true) {
+    //     return;
+    //   }
 
-      const { model } = editor;
-      const pos = model.document.selection.getFirstPosition();
-      if (!pos) return;
+    //   const { model } = editor;
+    //   const pos = model.document.selection.getFirstPosition();
+    //   if (!pos) return;
 
-      const sealed = getNearestSealedListFromPos(pos);
-      if (!sealed) return; // só intercepta se estiver dentro de um sealed
+    //   const sealed = getNearestSealedListFromPos(pos);
+    //   if (!sealed) return; // só intercepta se estiver dentro de um sealed
 
-      data.preventDefault(); evt.stop();
+    //   data.preventDefault(); evt.stop();
 
-      model.change(writer => {
-        // deixa o enter nativo dividir o bloco
-        editor.execute('enter');
+    //   model.change(writer => {
+    //     // deixa o enter nativo dividir o bloco
+    //     editor.execute('enter');
 
-        const posAfter = model.document.selection.getFirstPosition();
-        if (!posAfter) return;
-        const newBlock = posAfter.parent as any;
-        if (!newBlock) return;
+    //     const posAfter = model.document.selection.getFirstPosition();
+    //     if (!posAfter) return;
+    //     const newBlock = posAfter.parent as any;
+    //     if (!newBlock) return;
 
-        // queremos transformar o novo bloco em um novo numItem,
-        // mantendo-o dentro de ALGUM numList que esteja dentro do `sealed` (o mais próximo)
-        // pega o numItem atual (mais próximo)
-        let currentItem = posAfter.findAncestor('numItem');
+    //     // queremos transformar o novo bloco em um novo numItem,
+    //     // mantendo-o dentro de ALGUM numList que esteja dentro do `sealed` (o mais próximo)
+    //     // pega o numItem atual (mais próximo)
+    //     let currentItem = posAfter.findAncestor('numItem');
 
-        // se o bloco recém criado ficou fora de um numItem,
-        // cria um numItem irmão do atual (se existir) dentro do mesmo numList
-        if (!currentItem) {
-          const listForNew = getNearestSealedListFromPos(posAfter) || sealed;
-          const newItem = writer.createElement('numItem');
-          writer.insert(newItem, writer.createPositionAt(listForNew, 'end'));
-          writer.move(writer.createRangeOn(newBlock), writer.createPositionAt(newItem, 0));
-          writer.setSelection(ensureTypablePosInItem(writer, newItem, false));
-          return;
-        }
+    //     // se o bloco recém criado ficou fora de um numItem,
+    //     // cria um numItem irmão do atual (se existir) dentro do mesmo numList
+    //     if (!currentItem) {
+    //       const listForNew = getNearestSealedListFromPos(posAfter) || sealed;
+    //       const newItem = writer.createElement('numItem');
+    //       writer.insert(newItem, writer.createPositionAt(listForNew, 'end'));
+    //       writer.move(writer.createRangeOn(newBlock), writer.createPositionAt(newItem, 0));
+    //       writer.setSelection(ensureTypablePosInItem(writer, newItem, false));
+    //       return;
+    //     }
 
-        // garantir que este numItem pertence a um numList que está dentro do sealed mais próximo
-        let itsList = currentItem.parent; // deve ser um numList
-        if (!isInside(itsList, sealed)) {
-          // se por alguma razão o split empurrou pra fora, anexa de volta ao sealed
-          const fallback = firstItem(sealed) || null;
-          if (fallback) {
-            const newItem = writer.createElement('numItem');
-            writer.insert(newItem, writer.createPositionAfter(fallback));
-            writer.move(writer.createRangeOn(newBlock), writer.createPositionAt(newItem, 0));
-            writer.setSelection(ensureTypablePosInItem(writer, newItem, false));
-          } else {
-            // sealed vazio (raro): crie o primeiro item
-            const newItem = writer.createElement('numItem');
-            writer.insert(newItem, writer.createPositionAt(sealed, 0));
-            writer.move(writer.createRangeOn(newBlock), writer.createPositionAt(newItem, 0));
-            writer.setSelection(ensureTypablePosInItem(writer, newItem, false));
-          }
-          return;
-        }
+    //     // garantir que este numItem pertence a um numList que está dentro do sealed mais próximo
+    //     let itsList = currentItem.parent; // deve ser um numList
+    //     if (!isInside(itsList, sealed)) {
+    //       // se por alguma razão o split empurrou pra fora, anexa de volta ao sealed
+    //       const fallback = firstItem(sealed) || null;
+    //       if (fallback) {
+    //         const newItem = writer.createElement('numItem');
+    //         writer.insert(newItem, writer.createPositionAfter(fallback));
+    //         writer.move(writer.createRangeOn(newBlock), writer.createPositionAt(newItem, 0));
+    //         writer.setSelection(ensureTypablePosInItem(writer, newItem, false));
+    //       } else {
+    //         // sealed vazio (raro): crie o primeiro item
+    //         const newItem = writer.createElement('numItem');
+    //         writer.insert(newItem, writer.createPositionAt(sealed, 0));
+    //         writer.move(writer.createRangeOn(newBlock), writer.createPositionAt(newItem, 0));
+    //         writer.setSelection(ensureTypablePosInItem(writer, newItem, false));
+    //       }
+    //       return;
+    //     }
 
-        // caso normal: cria irmão dentro do mesmo numList
-        const newItem = writer.createElement('numItem');
-        writer.insert(newItem, writer.createPositionAfter(currentItem));
-        writer.move(writer.createRangeOn(newBlock), writer.createPositionAt(newItem, 0));
-        writer.setSelection(ensureTypablePosInItem(writer, newItem, false));
-      });
-    }, { priority: 'high' });
+    //     // caso normal: cria irmão dentro do mesmo numList
+    //     const newItem = writer.createElement('numItem');
+    //     writer.insert(newItem, writer.createPositionAfter(currentItem));
+    //     writer.move(writer.createRangeOn(newBlock), writer.createPositionAt(newItem, 0));
+    //     writer.setSelection(ensureTypablePosInItem(writer, newItem, false));
+    //   });
+    // }, { priority: 'high' });
 
     // não permitir que backspace/delete saia da lista caso exista o atributo data-block
     viewDoc.on(
@@ -299,110 +298,42 @@ export default class NumberedDivList extends Plugin {
         const model = editor.model;
         const sel = model.document.selection;
 
-        if (!sel.isCollapsed && (selectionSpansBlocks(model) || selectionTouchesElements(model))) {
-          data.preventDefault();
-          evt.stop();
+        data.preventDefault();
+        evt.stop();
 
-          model.change( writer => {
-            const anchor = sel.anchor!;
-            writer.setSelection( anchor );
-            // apaga 1 caractere para trás/à frente (se existir)
-            if (isBackspace) {
-              // @ts-ignore
-              editor.execute('delete', { unit: 'character', direction: 'backward' });
-            } else {
-              // @ts-ignore
-              editor.execute('delete', { unit: 'character', direction: 'forward' });
-            }
+        model.change( async (writer: any) => {
+          // @ts-ignore
+          const getPos = sel.getFirstPosition() as any;
+          const blocoPos = getPos?.findAncestor('paragraph') ?? getPos?.findAncestor('numItem') ?? getPos?.findAncestor('numList') ?? null;
+          const itemPos = blocoPos.findAncestor('numItem');
+          const listPos = itemPos.findAncestor('numList');
+
+          // @ts-ignore
+          editor.execute(isBackspace ? 'delete' : 'deleteForward', { unit: 'character', direction: isBackspace ? 'backward' : 'forward' });
+
+          if(blocoPos.is('element', 'paragraph') && !blocoPos?.getChild(0)) {
+            writer.remove(blocoPos);
+          }
+          if(itemPos && itemPos.childCount === 0) {
+            writer.remove(itemPos);
+          }
+          if(listPos && listPos.childCount === 0) {
+            writer.remove(listPos);
+          }          
+          
+          
+        });
+
+        if(isBackspace) {
+          model.change( async (writer: any) => {
+            // coloca o cursor no final do bloco atual
+            const posAfter = model.document.selection.getFirstPosition() as any;
+            writer.setSelection(writer.createPositionAt(posAfter.parent, 'end'));
           });
-          return;
         }
 
-        model.change(writer => {
-          const pos = model.document.selection.getFirstPosition();
-          if (!pos) return;
-
-          const sealed = getNearestSealedListFromPos(pos);
-          if (!sealed) return;
-
-          const numItem = pos.findAncestor('numItem');
-          const numList = pos.findAncestor('numList') as any;
-          const block = pos.parent as any;
-          
-          if (!numItem || !block?.is?.('element') || !numList || numList.getAttribute('data-block')) return;
-
-
-          // é o primeiro bloco dentro do item?
-          const isFirstItem = sealed.getChild(0) === block;
-          const isLastItem  = sealed.getChild(sealed.childCount - 1) === block;
-          const atStartOfBlock = pos.isAtStart && numItem.getChild(0) === block;
-          const atEndOfBlock = pos.isAtEnd && numItem.getChild(numItem.childCount - 1) === block;
-
-          if (isBackspace && isFirstItem && atStartOfBlock) {
-            data.preventDefault(); evt.stop();
-            writer.setSelection(ensureTypablePosInItem(writer, numItem, false)); // não deixa "sair"
-            return;
-          }
-          
-          if (isDelete && isLastItem && atEndOfBlock) {
-            data.preventDefault(); evt.stop();
-            writer.setSelection(ensureTypablePosInItem(writer, numItem, true)); // idem
-            return;
-          }
-
-          if (isFirstItem) {
-            // Evita que o Delete padrão remova o container todo
-            data.preventDefault();
-            evt.stop();
-
-            // Estratégia: cria (se necessário) um parágrafo antes do numList e move o caret pra lá.
-            // Se já existir algo antes do numList e for bloco digitável, só posiciona o caret.
-            const before = writer.createPositionBefore(numItem);
-            const parent = before.parent;
-
-            // Se o pai aceita parágrafos diretamente e não há bloco imediatamente anterior,
-            // crie um parágrafo novo; do contrário, apenas posicione o caret.
-            let setToPos = before;
-
-            const prevSibling = numItem.previousSibling;
-            if (!prevSibling) {
-              const canParagraph =
-              // @ts-ignore
-              editor.model.schema.checkChild(parent, 'paragraph');
-
-              const hasText = Array.from(parent.getChildren()).some(child => {
-                // @ts-ignore
-                return child.is('element', 'paragraph') && child.getChild(0)?.is('text');
-              });
-
-              if (canParagraph) {
-                if (hasText) {
-                  const paragraph = writer.createElement('paragraph');
-                  writer.insert(paragraph, before);
-                  setToPos = writer.createPositionAt(paragraph, 0);
-                } else {
-                  writer.remove(numItem);
-                  setToPos = before;
-                }
-              }
-            } else {
-              writer.remove(numItem);
-              setToPos = writer.createPositionAfter(prevSibling);
-            }
-
-            writer.setSelection(setToPos);
-
-            if (numList.childCount === 0 && !numList.getAttribute('data-block')) {
-              const aboveList = numList.findAncestor('numList');
-              const lastChild = aboveList ? Array.from(aboveList.getChildren()).pop() : null as any;
-              if (aboveList && lastChild) {
-                writer.setSelection(writer.createPositionAfter(lastChild));
-              }
-
-              writer.remove(numList);
-            }
-          }
-        });
+        return;
+        
       },
       { priority: 'high' }
     );
@@ -492,9 +423,13 @@ class ToggleNumberedDivListCommand {
     const model = editor.model;
 
     const selection = model.document.selection;
-    const firstPos = selection.getFirstPosition();
+    const firstPos = selection.getFirstPosition('paragraph') ?? selection.getFirstPosition('numItem');
     const existingItem = firstPos?.findAncestor('numItem');
+    const paragraphAbove = firstPos?.findAncestor('paragraph');
+    const firstParagraphItem = existingItem ? existingItem?.getChild(0) : null;
     let existingList = firstPos?.findAncestor('numList');
+    let firstItemInList = existingList ? existingList.getChild(0) : null;
+    const selectedItemIndex = existingList ? existingList.getChildIndex(existingItem) : null;
 
     if(value === 'recuar') {
       if (!existingItem || !existingList) return;
@@ -503,6 +438,12 @@ class ToggleNumberedDivListCommand {
 
     if(value !== undefined) {
       const block = firstPos.parent as any;
+
+      if(existingItem && firstItemInList === existingItem) {
+        if(value === 'decimal') {
+          return;
+        }
+      }
   
       if(existingItem?.getChild(0) === block) {
         return editor.execute('toggleNumberedDivList', { value: undefined, start: start });
@@ -510,54 +451,33 @@ class ToggleNumberedDivListCommand {
     }
 
     model.change((writer: any) => {
-      const paragraphAbove = firstPos?.findAncestor('paragraph');
-      const firstParagraphItem = existingItem ? existingItem?.getChild(0) : null;
+      // se não for o primeiro do item
+      if ((value == undefined || value == 'decimal') && paragraphAbove === firstParagraphItem && selectedItemIndex >= 0) {
+        
+        if(!selectedItemIndex) return;
 
-      console.log(firstParagraphItem, paragraphAbove);
+        // procura o numItem acima da seleção
+        let prevItem = existingList.getChild(selectedItemIndex - 1);
+        if (!prevItem) return;
 
-      if (value == undefined && firstParagraphItem == paragraphAbove) {
-        const prevItem = existingItem?.previousSibling ?? null;
-        if (prevItem) {
-          writer.setSelection(writer.createPositionAt(prevItem, 'end'));
-          const items: any[] = [];
-          for (const child of existingItem.getChildren()) {
-            items.push(child);
-          }
-          for (const item of items) {
-            while (item.childCount > 0) {
-              const child = item?.getChild(0);
-              const rangeOnChild = writer.createRangeOn(child);
-              const paragraph = writer.createElement('paragraph');
-              writer.insert(paragraph, writer.createPositionAt(prevItem, 'end'));
-              writer.move(rangeOnChild, writer.createPositionAt(paragraph, 'end'));
-            }
-          }
+        if(prevItem.is('element', 'numItem')) {
+          // criar uma nova lista abaixo da prevItem
+          const newBlock = writer.createElement('numList', {
+            ...(value && value !== 'decimal' ? { 'data-style': value } : {})
+          });
+          const insertPos = writer.createPositionAfter(prevItem);
+          writer.insert(newBlock, insertPos);
 
-          writer.remove(existingItem);
-
-          const lastParagraph = prevItem?.getChild(prevItem.childCount - 1);
-
-          // coloca o cursor no final do novo item
-          // @ts-ignore
-          writer.setSelection(writer.createPositionAt(lastParagraph, 'end'));
-
-          return editor.execute('toggleNumberedDivList', { value: value ?? 'decimal', start: start });
+          writer.move(writer.createRangeOn(existingItem), writer.createPositionAt(newBlock, 0));
+        } else {
+          // move para o final do prevItem
+          writer.move(writer.createRangeOn(existingItem), writer.createPositionAt(prevItem, 'end'));
         }
+        
         return;
-      }
+      }      
 
-      // VERIFICA SE EXISTE UMA NUMLIST ACIMA DESSA SELEÇÃO
-      let parent = firstPos.parent;
-
-      while (parent) {
-        if (parent.is('element', 'numList')) {
-          existingList = parent;
-          break;
-        }
-        parent = parent.parent;
-      }
-
-      const blocks = Array.from(selection.getSelectedBlocks());
+      const blocks = Array.from(selection.getSelectedBlocks()) as any[];
 
       if (!blocks.length) {
         const insertRange = findOptimalInsertionRange(selection, model);
@@ -572,9 +492,21 @@ class ToggleNumberedDivListCommand {
       }
 
       if (existingList && value === undefined) {
-        const insertPos = writer.createPositionBefore(paragraphAbove);
+        // verifica se está dentro de um numItem
+        const isInsideNumItem = blocks[0].findAncestor('numItem') === existingItem;
+        let insertPos = writer.createPositionBefore(paragraphAbove);
+        let numItem;
+
+        if (isInsideNumItem && existingItem) {
+          // cria um num item abaixo do existente
+          numItem = writer.createElement('numItem');
+          insertPos = writer.createPositionAfter(existingItem);
+          writer.insert(numItem, insertPos);
+        } else {
+          numItem = writer.createElement('numItem');
+        }
+        
         for (const block of blocks) {
-          const numItem = writer.createElement('numItem');
           writer.insert(numItem, insertPos);
           writer.move(writer.createRangeOn(block), writer.createPositionAt(numItem, 0));
         }
@@ -614,99 +546,27 @@ class ToggleNumberedDivListCommand {
 function shiftTab(editor: any) {
   const model = editor.model;
 
-  const posBefore = model.document.selection.getFirstPosition();
-  const inItem = posBefore?.findAncestor('numItem');
-  const inList = posBefore?.findAncestor('numList');
-  const parentItem = inList.findAncestor('numItem') ?? null;
-  const db = inList.getAttribute('dataBlock');
+  const selection = model.document.selection;
+  const firstBlock = selection.getFirstPosition('paragraph') ?? selection.getFirstPosition('numItem');
+  const firstPos = firstBlock.is('element', 'numItem') ? firstBlock : firstBlock.findAncestor('numItem');
+  const existingList = firstPos?.findAncestor('numList');
+  const selectedItemIndex = existingList ? existingList.getChildIndex(firstPos) : null;
+  const numListPai = existingList ? existingList?.findAncestor('numList') : null;
+  const selectedListPaiIndex = numListPai ? numListPai.getChildIndex(existingList) : null;
 
   model.change((writer: any) => {
-
-    if (parentItem) {
-      const insertPos = writer.createPositionAfter(parentItem);
-      const newItem = writer.createElement('numItem');
-      writer.insert(newItem, insertPos);
-      const items: any[] = [];
-      for (const child of inItem.getChildren()) {
-        items.push(child);
-      }
-      for (const item of items) {
-        while (item.childCount > 0) {
-          const child = item.getChild(0);
-          const rangeOnChild = writer.createRangeOn(child);
-          const paragraph = writer.createElement('paragraph');
-          writer.insert(paragraph, writer.createPositionAt(newItem, 'end'));
-          writer.move(rangeOnChild, writer.createPositionAt(paragraph, 'end'));
-        }
-      }
-
-      const lastChild = newItem.getChild(newItem.childCount - 1);
-      if (lastChild) {
-        // @ts-ignore
-        writer.setSelection(writer.createPositionAt(lastChild, 'end'));
-      } else {
-        writer.setSelection(writer.createPositionAt(newItem, 'end'));
-      }
-    } else {
-      const prevList = db ? inList : inItem.previousSibling;
-
-      if ((prevList && prevList.is('element', 'numItem')) || db) {
-        const items: any[] = [];
-        for (const child of inItem.getChildren()) {
-          items.push(child);
-        }
-        for (const item of items) {
-          while (item.childCount > 0) {
-            const child = item.getChild(0);
-            const rangeOnChild = writer.createRangeOn(child);
-            const paragraph = writer.createElement('paragraph');
-            writer.insert(paragraph, writer.createPositionAt(prevList, 'end'));
-            writer.move(rangeOnChild, writer.createPositionAt(paragraph, 'end'));
-          }
-        }
-
-        const lastChild = prevList.getChild(prevList.childCount - 1);
-        if (lastChild) {
-          // @ts-ignore
-          writer.setSelection(writer.createPositionAt(lastChild, 'end'));
-        } else {
-          writer.setSelection(writer.createPositionAt(prevList, 'end'));
-        }
-          
-      } else {
-        const insertPos = db ? writer.createPositionAt(inList, 'end') : writer.createPositionAfter(inList);
-
-        const items: any[] = [];
-        for (const child of inItem.getChildren()) {
-          items.push(child);
-        }
-        for (const item of items) {
-          while (item.childCount > 0) {
-            const child = item.getChild(0);
-            const rangeOnChild = writer.createRangeOn(child);
-            const paragraph = writer.createElement('paragraph');
-            writer.insert(paragraph, insertPos);
-            writer.move(rangeOnChild, writer.createPositionAt(paragraph, 'end'));
-          }
-        }
-
-      }
-
-      const lastChild = prevList ? prevList.getChild(prevList.childCount - 1) : null;
-      if (lastChild) {
-        // @ts-ignore
-        writer.setSelection(writer.createPositionAt(lastChild, 'end'));
-      } else {
-        writer.setSelection(writer.createPositionAt(inList, 'end'));
-      }
+    // se for o primeiro item da lista
+    if(numListPai && selectedListPaiIndex >= 0 && selectedItemIndex === 0) {
+      writer.move(writer.createRangeOn(firstPos), writer.createPositionAt(numListPai, selectedListPaiIndex));
+      return;
+    }
+    // se for o último item da lista
+    if(numListPai && selectedListPaiIndex >= 0 && selectedItemIndex === existingList.childCount -1) {
+      writer.move(writer.createRangeOn(firstPos), writer.createPositionAt(numListPai, selectedListPaiIndex + 1));
+      return;
     }
 
-    writer.remove(inItem);
-
-
-    if (inList.childCount === 0) {
-      if (!db) writer.remove(inList);
-    }
+    // criar novas regras de acordo com a necessidade
 
   });
 }
