@@ -1,8 +1,8 @@
-.select2-container--open {
+.ck-dropdown .select2-container--open {
     background-color: white !important;
 }
 
-ul.select2-results__options {
+.ck-dropdown ul.select2-results__options {
   padding: 10px !important;
   background: #fff !important;
 }
