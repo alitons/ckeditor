@@ -196,7 +196,7 @@ export default class NumberedDivList extends Plugin {
       const sealed = getNearestSealedListFromPos(pos);
       if (!sealed) return;
 
-      const item = pos.findAncestor('numItem');
+      const item = pos?.findAncestor('numItem');
       if (item && isInside(item, sealed)) return; // já dentro: ok
 
       // redireciona para o primeiro item do sealed
@@ -214,79 +214,6 @@ export default class NumberedDivList extends Plugin {
       });
     });
 
-
-    // não permitir que saia da lista caso exista o atributo data-block
-    // viewDoc.on('keydown', (evt, data) => {
-    //   if (data.keyCode !== keyCodes.enter || data.shiftKey) return;
-    //   if (!editor.model.document.selection.isCollapsed) return;
-
-    //   if(config?.disableEnter === true) {
-    //     return;
-    //   }
-
-    //   const { model } = editor;
-    //   const pos = model.document.selection.getFirstPosition();
-    //   if (!pos) return;
-
-    //   const sealed = getNearestSealedListFromPos(pos);
-    //   if (!sealed) return; // só intercepta se estiver dentro de um sealed
-
-    //   data.preventDefault(); evt.stop();
-
-    //   model.change(writer => {
-    //     // deixa o enter nativo dividir o bloco
-    //     editor.execute('enter');
-
-    //     const posAfter = model.document.selection.getFirstPosition();
-    //     if (!posAfter) return;
-    //     const newBlock = posAfter.parent as any;
-    //     if (!newBlock) return;
-
-    //     // queremos transformar o novo bloco em um novo numItem,
-    //     // mantendo-o dentro de ALGUM numList que esteja dentro do `sealed` (o mais próximo)
-    //     // pega o numItem atual (mais próximo)
-    //     let currentItem = posAfter.findAncestor('numItem');
-
-    //     // se o bloco recém criado ficou fora de um numItem,
-    //     // cria um numItem irmão do atual (se existir) dentro do mesmo numList
-    //     if (!currentItem) {
-    //       const listForNew = getNearestSealedListFromPos(posAfter) || sealed;
-    //       const newItem = writer.createElement('numItem');
-    //       writer.insert(newItem, writer.createPositionAt(listForNew, 'end'));
-    //       writer.move(writer.createRangeOn(newBlock), writer.createPositionAt(newItem, 0));
-    //       writer.setSelection(ensureTypablePosInItem(writer, newItem, false));
-    //       return;
-    //     }
-
-    //     // garantir que este numItem pertence a um numList que está dentro do sealed mais próximo
-    //     let itsList = currentItem.parent; // deve ser um numList
-    //     if (!isInside(itsList, sealed)) {
-    //       // se por alguma razão o split empurrou pra fora, anexa de volta ao sealed
-    //       const fallback = firstItem(sealed) || null;
-    //       if (fallback) {
-    //         const newItem = writer.createElement('numItem');
-    //         writer.insert(newItem, writer.createPositionAfter(fallback));
-    //         writer.move(writer.createRangeOn(newBlock), writer.createPositionAt(newItem, 0));
-    //         writer.setSelection(ensureTypablePosInItem(writer, newItem, false));
-    //       } else {
-    //         // sealed vazio (raro): crie o primeiro item
-    //         const newItem = writer.createElement('numItem');
-    //         writer.insert(newItem, writer.createPositionAt(sealed, 0));
-    //         writer.move(writer.createRangeOn(newBlock), writer.createPositionAt(newItem, 0));
-    //         writer.setSelection(ensureTypablePosInItem(writer, newItem, false));
-    //       }
-    //       return;
-    //     }
-
-    //     // caso normal: cria irmão dentro do mesmo numList
-    //     const newItem = writer.createElement('numItem');
-    //     writer.insert(newItem, writer.createPositionAfter(currentItem));
-    //     writer.move(writer.createRangeOn(newBlock), writer.createPositionAt(newItem, 0));
-    //     writer.setSelection(ensureTypablePosInItem(writer, newItem, false));
-    //   });
-    // }, { priority: 'high' });
-
-    // não permitir que backspace/delete saia da lista caso exista o atributo data-block
     viewDoc.on(
       'keydown',
       (evt, data) => {
@@ -305,13 +232,13 @@ export default class NumberedDivList extends Plugin {
           // @ts-ignore
           const getPos = sel.getFirstPosition() as any;
           const blocoPos = getPos?.findAncestor('paragraph') ?? getPos?.findAncestor('numItem') ?? getPos?.findAncestor('numList') ?? null;
-          const itemPos = blocoPos.findAncestor('numItem');
-          const listPos = itemPos.findAncestor('numList');
+          const itemPos = blocoPos?.findAncestor('numItem');
+          const listPos = itemPos?.findAncestor('numList');
 
           // @ts-ignore
           editor.execute(isBackspace ? 'delete' : 'deleteForward', { unit: 'character', direction: isBackspace ? 'backward' : 'forward' });
 
-          if(blocoPos.is('element', 'paragraph') && !blocoPos?.getChild(0)) {
+          if(blocoPos?.is('element', 'paragraph') && !blocoPos?.getChild(0)) {
             writer.remove(blocoPos);
           }
           if(itemPos && itemPos.childCount === 0) {
@@ -324,13 +251,12 @@ export default class NumberedDivList extends Plugin {
           
         });
 
-        if(isBackspace) {
-          model.change( async (writer: any) => {
-            // coloca o cursor no final do bloco atual
-            const posAfter = model.document.selection.getFirstPosition() as any;
-            writer.setSelection(writer.createPositionAt(posAfter.parent, 'end'));
-          });
-        }
+        // if(isBackspace) {
+        //   model.change( async (writer: any) => {
+        //     const posAfter = model.document.selection.getFirstPosition() as any;
+        //     writer.setSelection(writer.createPositionAt(posAfter.parent, 'end'));
+        //   });
+        // }
 
         return;
         
@@ -493,7 +419,7 @@ class ToggleNumberedDivListCommand {
 
       if (existingList && value === undefined) {
         // verifica se está dentro de um numItem
-        const isInsideNumItem = blocks[0].findAncestor('numItem') === existingItem;
+        const isInsideNumItem = blocks[0]?.findAncestor('numItem') === existingItem;
         let insertPos = writer.createPositionBefore(paragraphAbove);
         let numItem;
 
@@ -517,7 +443,7 @@ class ToggleNumberedDivListCommand {
       let first = true;
       for (const block of blocks) {
         // @ts-ignore
-        const foundList = block.findAncestor('numList');
+        const foundList = block?.findAncestor('numList');
         if (foundList) {
           first = false;
           break;
@@ -548,7 +474,7 @@ function shiftTab(editor: any) {
 
   const selection = model.document.selection;
   const firstBlock = selection.getFirstPosition('paragraph') ?? selection.getFirstPosition('numItem');
-  const firstPos = firstBlock.is('element', 'numItem') ? firstBlock : firstBlock.findAncestor('numItem');
+  const firstPos = firstBlock.is('element', 'numItem') ? firstBlock : firstBlock?.findAncestor('numItem');
   const existingList = firstPos?.findAncestor('numList');
   const selectedItemIndex = existingList ? existingList.getChildIndex(firstPos) : null;
   const numListPai = existingList ? existingList?.findAncestor('numList') : null;

@@ -2,7 +2,7 @@
   "name": "@alitons/ckeditor5",
   "author": "Aliton Silva",
   "description": "Ckeditor 5 Personalizado adicionados campos para atender as demandas da SEAD/AC",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "license": "SEE LICENSE IN LICENSE.md",
   "private": false,
   "main": "./build/ckeditor.js",
