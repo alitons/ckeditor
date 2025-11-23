@@ -6,7 +6,7 @@ import { createDropdown } from '@ckeditor/ckeditor5-ui';
 import { HtmlDataProcessor } from '@ckeditor/ckeditor5-engine';
 import $ from "jquery"; 
 import 'select2/dist/js/select2.full.min'
-import 'select2/dist/css/select2.css'
+import 'select2/dist/css/select2.min.css'
 
 window.$ = $;
 window.jQuery = $;
@@ -22,7 +22,6 @@ export default class DocumentoModelo extends Plugin {
 
     createPopup() {
         this.editor.ui.componentFactory.add( 'documentoModelo', () => {
-            
             const dropdown = createDropdown( this.editor.locale );
 
             // Configure dropdown's button properties:
@@ -86,6 +85,7 @@ export default class DocumentoModelo extends Plugin {
             })
 
             const toolbar = this.editor.config.get('toolbar') as any;
+            const self = this;
 
             if(!toolbar!.seiOptions || toolbar!.seiOptions === undefined || [null, undefined, ''].includes(toolbar!.seiOptions?.url)) {
                 dropdown.isEnabled = false
@@ -94,16 +94,16 @@ export default class DocumentoModelo extends Plugin {
             // CRIAR O ELEMENTO IGUAL AO ELEMENTO DE BUSCA
             const input = document.createElement( 'div' );
             input.classList.add('documento_modelo_container')
-            input.innerHTML = `<div class="ck ck-reset ck-dropdown__panel ck-dropdown__panel_se ck-dropdown__panel-visible ck-dropdown__panel_documento_modelo" style="left: initial;right: 0;">
+            input.innerHTML = `<div class="ck ck-dropdown__panel ck-dropdown__panel_se ck-dropdown__panel-visible ck-dropdown__panel_documento_modelo ck-reset_all-excluded" style="left: initial;right: 0;">
                 <form class="ck ck-find-and-replace-form">
                     <div class="ck ck-form__header">
-                        <h2 class="ck ck-form__header__label">Documento Modelo</h2>
+                        <p class="ck ck-form__header__label" style="margin: initial;">Documento Modelo</p>
                     </div>
                     <fieldset class="ck ck-find-and-replace-form__find" style="margin-bottom: 0px; padding-bottom: 0px;">
                         <div class="ck ck-labeled-field-view ck-labeled-field-view_empty">
                             <label>Categoria</label>
                             <div class="ck ck-labeled-field-view__input-wrapper">
-                                <select class="ck ck-input ck-input-text_empty ck-input-select categoriamodeloselect" id="search-input-categoria-document-modelo-${this.uid}">
+                                <select class="ck ck-input ck-input-text_empty ck-input-select categoriamodeloselect-${self.uid}" id="search-input-categoria-document-modelo-${this.uid}">
                                 </select>
                             </div>
                             <div class="ck ck-labeled-field-view__status ck-labeled-field-view__status_error" id="search-error-sei-${this.uid}" role="alert"></div>
@@ -113,7 +113,7 @@ export default class DocumentoModelo extends Plugin {
                         <div class="ck ck-labeled-field-view ck-labeled-field-view_empty">
                             <label>Modelo</label>
                             <div class="ck ck-labeled-field-view__input-wrapper">
-                                <select class="ck ck-input ck-input-text_empty ck-input-select documentomodeloselect" id="search-input-documento-modelo-${this.uid}">
+                                <select class="ck ck-input ck-input-text_empty ck-input-select documentomodeloselect-${self.uid}" id="search-input-documento-modelo-${this.uid}">
                                 </select>
                             </div>
                             <div class="ck ck-labeled-field-view__status ck-labeled-field-view__status_error" id="search-error-sei-${this.uid}" role="alert"></div>
@@ -124,7 +124,7 @@ export default class DocumentoModelo extends Plugin {
                             <div class="ck" id="search-result-documento-modelo-${this.uid}"></div>
                         </div>
                         <button class="ck ck-button ck-button-save ck-off ck-button_with-text" type="button" tabindex="-1" id="search-add-documento-modelo-${this.uid}">
-                            <svg class="ck ck-icon ck-reset_all-excluded ck-icon_inherit-color ck-button__icon" viewBox="0 0 20 20"><path d="M6.972 16.615a.997.997 0 0 1-.744-.292l-4.596-4.596a1 1 0 1 1 1.414-1.414l3.926 3.926 9.937-9.937a1 1 0 0 1 1.414 1.415L7.717 16.323a.997.997 0 0 1-.745.292z"></path></svg>
+                            <svg class="ck ck-icon ck-icon_inherit-color ck-button__icon" viewBox="0 0 20 20"><path d="M6.972 16.615a.997.997 0 0 1-.744-.292l-4.596-4.596a1 1 0 1 1 1.414-1.414l3.926 3.926 9.937-9.937a1 1 0 0 1 1.414 1.415L7.717 16.323a.997.997 0 0 1-.745.292z"></path></svg>
                             <span class="ck ck-button__label">Importar</span>
                         </button>
                     </fieldset>
@@ -132,15 +132,13 @@ export default class DocumentoModelo extends Plugin {
             </div>`;
             dropdown.panelView.element.appendChild( input );
 
-            const self = this;
-
             // EXECUTAR APENAS QUANDO O DROPDOWN FOR ABERTO
             dropdown.on( 'change:isOpen', ( evt, name, isOpen ) => {
                 if ( isOpen ) {
-                        $('.categoriamodeloselect')
+                        $(`.categoriamodeloselect-${self.uid}`)
                         .select2(this.parametrosDocumentoModeloCategoria())
 
-                        $('.documentomodeloselect')
+                        $(`.documentomodeloselect-${self.uid}`)
                         .select2(this.parametrosDocumentoModelo())
                         .on('select2:select', function (e) {
                             console.log('selecionado', $(`#search-actions-documento-modelo-${self.uid}`));
@@ -178,19 +176,20 @@ export default class DocumentoModelo extends Plugin {
     }
 
     async openModalDocumentoModelo(){
+        const self = this
         const val = await Swal.fire({
             title: 'Modelo de Documento',
             html: `
             <div class="row w-100">
                 ${(this.options.categoria) ? `<div class="col-12 mb-3" style="text-align: justify;">
                     <div class="form-group">
-                        <select class="form-select categoriamodeloselect">
+                        <select class="form-select categoriamodeloselect-${self.uid}">
                         </select>
                     </div>
                 </div>` : ''}
                 <div class="col-12" style="text-align: justify;">
                     <div class="form-group">
-                        <select class="form-select documentomodeloselect">
+                        <select class="form-select documentomodeloselect-${self.uid}">
                         </select>
                     </div>
                 </div>
@@ -201,10 +200,10 @@ export default class DocumentoModelo extends Plugin {
             `,
             willOpen: () => {
                 
-                $('.categoriamodeloselect')
+                $(`.categoriamodeloselect-${self.uid}`)
                 .select2(this.parametrosDocumentoModeloCategoria())
 
-                $('.documentomodeloselect')
+                $(`.documentomodeloselect-${self.uid}`)
                 .select2(this.parametrosDocumentoModelo())
                 .on('change', function (e) {
                     $('.documentomodeloviewer').html(e.target.value)
@@ -253,7 +252,7 @@ export default class DocumentoModelo extends Plugin {
                         results: data.data.map(function(item) {
                             return {
                                 id: self.options?.categoria?.ajax?.results?.id ? item[self.options?.categoria?.ajax?.results?.id] : item.id,
-                                text: self.options?.categoria?.ajax?.results?.value ? item[self.options?.categoria?.ajax?.results?.value] : item.value
+                                text: self.options?.categoria?.ajax?.results?.text ? item[self.options?.categoria?.ajax?.results?.text] : item.text
                             }
                         }),
                         pagination: {
@@ -287,7 +286,7 @@ export default class DocumentoModelo extends Plugin {
                     let p = {
                         search: params.term,
                         page: params.page || 1,
-                        categoria: $('.categoriamodeloselect').val() ?? null,
+                        categoria: $(`.categoriamodeloselect-${self.uid}`).val() ?? null,
                     }
                     if(self.options?.ajax?.data) {
                         p = {...p, ...self.options?.ajax?.data}

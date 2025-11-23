@@ -34,21 +34,21 @@ watchdog.create( document.querySelector( '.editor' ), {
 		},
 		documentoModeloOptions: {
 			categoria: {
-				options: [
-					{
-						autotexto: 'teste 1',
-						titulo: 'Primeiro teste'
-					}
-				],
+				// options: [
+				// 	{
+				// 		autotexto: 'teste 1',
+				// 		titulo: 'Primeiro teste'
+				// 	}
+				// ],
 				ajax: {
-					url: 'http://10.10.18.10/compras/api/teste',
+					url: 'https://compras.test/api/documento-modelo/categoria',
 					method: 'GET',
 					data: {
 						usuario: 'usuario',
 					},
 					results: {
-						autotexto: 'autotexto',
-						titulo: 'titulo'
+						id: 'id_categoria_autotexto',
+						text: 'descricao'
 					}
 				}
 			},
@@ -59,7 +59,7 @@ watchdog.create( document.querySelector( '.editor' ), {
 				}
 			],
 			ajax: {
-				url: 'http://10.10.18.10/compras/api/teste',
+				url: 'https://compras.test/api/documento-modelo',
 				method: 'GET',
 				data: {
 					usuario: 'usuario',
