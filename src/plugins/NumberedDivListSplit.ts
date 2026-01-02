@@ -129,7 +129,6 @@ export default class NumberedDivListSplit extends Plugin {
 
       // Limpeza
       split.on('destroy', () => {
-        try { panel.destroy(); } catch {}
         // @ts-ignore
         window.removeEventListener('scroll', onScrollOrResize, true);
         // @ts-ignore

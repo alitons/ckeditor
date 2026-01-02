@@ -122,7 +122,29 @@ Editor.builtinPlugins = [
     Timestamp
 ];
 Editor.defaultConfig = {
-    extraAllowedContent: 'div[dir,id,lang,title](*){*}',
+    extraAllowedContent: 'div[dir,id,lang,title](*){*};p[dir,id,lang,title](*){*}',
+    htmlSupport: {
+        allow: [
+            {
+                name: 'p',
+                classes: true,
+                attributes: true,
+                styles: true
+            },
+            {
+                name: 'div',
+                classes: true,
+                attributes: true,
+                styles: true
+            },
+            {
+                name: 'span',
+                classes: true,
+                attributes: true,
+                styles: true
+            }
+        ]
+    },
     toolbar: {
         items: [
             'fontSize',

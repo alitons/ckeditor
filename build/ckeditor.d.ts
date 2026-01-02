@@ -35,9 +35,19 @@ import { EditorWatchdog } from '@ckeditor/ckeditor5-watchdog';
 import ImportarSei from './plugins/sei';
 import NumberedDivList from './plugins/listaNumerada';
 import './css/custom.css';
+import './css/sei.css';
 declare class Editor extends DecoupledEditor {
     static builtinPlugins: (typeof NumberedDivList | typeof Alignment | typeof Autoformat | typeof Superscript | typeof Subscript | typeof Bold | typeof Code | typeof Italic | typeof Strikethrough | typeof Underline | typeof BlockQuote | typeof CloudServices | typeof CodeBlock | typeof SelectAll | typeof Essentials | typeof FontBackgroundColor | typeof FontColor | typeof FontFamily | typeof FontSize | typeof Heading | typeof Highlight | typeof HorizontalLine | typeof HtmlEmbed | typeof DataFilter | typeof Image | typeof ImageCaption | typeof ImageInsert | typeof ImageResize | typeof ImageStyle | typeof ImageToolbar | typeof ImageUpload | typeof Indent | typeof TextPartLanguage | typeof Link | typeof LinkImage | typeof List | typeof ListProperties | typeof TodoList | typeof MediaEmbed | typeof Mention | typeof PageBreak | typeof RemoveFormat | typeof StandardEditingMode | typeof ShowBlocks | typeof SpecialCharactersEssentials | typeof Style | typeof Table | typeof TableCaption | typeof TableCellProperties | typeof TableColumnResize | typeof TableProperties | typeof TableToolbar | typeof ImportarSei)[];
     static defaultConfig: {
+        extraAllowedContent: string;
+        htmlSupport: {
+            allow: {
+                name: string;
+                classes: boolean;
+                attributes: boolean;
+                styles: boolean;
+            }[];
+        };
         toolbar: {
             items: string[];
             shouldNotGroupWhenFull: boolean;

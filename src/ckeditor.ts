@@ -91,6 +91,7 @@ import NumberedDivList from './plugins/listaNumerada';
 import NumberedDivListSplit from './plugins/NumberedDivListSplit';
 
 import './css/custom.css';
+import './css/sei.css';
 
 // You can read more about extending the build with additional plugins in the "Installing plugins" guide.
 // See https://ckeditor.com/docs/ckeditor5/latest/installation/plugins/installing-plugins.html for details.
@@ -177,6 +178,17 @@ class Editor extends DecoupledEditor {
 	];
 
 	public static override defaultConfig = {
+		extraAllowedContent: 'div[dir,id,lang,title](*){*};p[dir,id,lang,title](*){*}',
+		htmlSupport: {
+			allow: [
+				{
+					name: 'p',
+					classes: true, // permite todas as classes em <p>
+					attributes: true, // permite todos os atributos
+					styles: true // permite todos os estilos
+				}
+			]
+		},
 		toolbar: {
 			items: [
 				'undo',

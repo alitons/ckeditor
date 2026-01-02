@@ -1,6 +1,9 @@
 import { Plugin, Command } from '@ckeditor/ckeditor5-core';
 import { findOptimalInsertionRange } from '@ckeditor/ckeditor5-widget/src/utils';
 import { keyCodes } from '@ckeditor/ckeditor5-utils/src/keyboard';
+import { uid } from '@ckeditor/ckeditor5-utils';
+// @ts-ignore
+import $, { isArray } from "jquery"; 
 
 export default class NumberedDivList extends Plugin {
   static get pluginName() {
@@ -8,6 +11,7 @@ export default class NumberedDivList extends Plugin {
   }
 
   init() {
+        
     const editor = this.editor;
     const toolbar = editor.config.get('toolbar') as any;
     const config = toolbar!.listaNumeradaOptions || {};
@@ -21,7 +25,8 @@ export default class NumberedDivList extends Plugin {
     });
 
     editor.model.schema.register('numItem', {
-      allowIn: 'numList',
+      // allowIn: 'numList',
+      allowWhere: '$block',
       allowContentOf: '$root',
       allowAttributesOf: '$block',
       isLimit: true,
@@ -128,6 +133,68 @@ export default class NumberedDivList extends Plugin {
       model: (viewElement, { writer }) => writer.createElement('numItem')
     });
 
+    let firstConversion = true;
+    let nivelAtual = 1;
+    let lastItemAdded = {} as any;
+    editor.conversion.for('upcast').add( dispatcher => {
+      dispatcher.on( 'element:p', async ( evt, data, conversionApi ) => {
+        const viewElement = data.viewItem;
+        const classAttr = viewElement.getAttribute('class');
+        const {
+          consumable,
+          writer,
+          safeInsert,
+          convertChildren,
+          updateConversionResult
+        } = conversionApi;
+        const { viewItem } = data;
+
+        if(classAttr && (classAttr.match(/Item_Nivel(\d+)/) || classAttr.match(/Paragrafo_Numerado_Nivel(\d+)/))) {
+          const nivelLocal = parseInt(classAttr.replace(/\D/g, '') ?? 0);
+          console.log(nivelLocal);
+          
+          if ( !consumable.test( viewItem, { name: true } ) ) {
+            return;
+          }
+          evt.stop();
+          
+          consumable.consume( viewItem, { name: true } );
+
+          if(!config?.forceList || nivelLocal > nivelAtual) {
+            console.log('entrou no if')
+            const numList = writer.createElement('numList', { 'dataBlock': 'true' });
+            let children = null;
+
+            if(nivelLocal > 2) {
+              children = lastItemAdded[nivelLocal - 1].parent ?? null;
+              console.log('children', children)
+            }
+
+            const numItem = writer.createElement('numItem');
+            writer.insert( numItem, writer.createPositionAt( numList, 'end' ) );
+            safeInsert( numList, !firstConversion ? writer.createPositionAt(children ?? data.modelCursor.parent, 'end') : data.modelCursor );
+            convertChildren( viewItem, numItem );
+            updateConversionResult( numList, data );
+          
+            firstConversion = false;
+            nivelAtual = nivelLocal;
+            lastItemAdded[nivelLocal] = numItem;
+
+          } else {
+            const numItem = writer.createElement('numItem');
+            safeInsert( numItem, lastItemAdded[nivelLocal]?.parent ? writer.createPositionAt(lastItemAdded[nivelLocal]?.parent, 'end') : data.modelCursor );
+            convertChildren( viewItem, numItem );
+            updateConversionResult( numItem, data );
+          
+            nivelAtual = nivelLocal;
+            lastItemAdded[nivelLocal] = numItem;
+          }
+          
+        }
+      }, { priority: 'high' } );
+    });
+
+
     const viewDoc = editor.editing.view.document;
 
     const selectionSpansBlocks = (model: any) => {
@@ -217,6 +284,9 @@ export default class NumberedDivList extends Plugin {
     viewDoc.on(
       'keydown',
       (evt, data) => {
+        firstConversion = true;
+        nivelAtual = 1;
+        lastItemAdded = {} as any;
         const isBackspace = data.keyCode === keyCodes.backspace;
         const isDelete    = data.keyCode === keyCodes.delete;
         if (!isBackspace && !isDelete) return;
@@ -306,10 +376,10 @@ export default class NumberedDivList extends Plugin {
       },
       { priority: 'high' }
     );
-
     
     editor.model.document.on('change:data', () => {
-          executeForceList(editor, config);
+      // ajusteSeiContent(editor);
+      executeForceList(editor, config);
     });
 
     
@@ -501,18 +571,16 @@ function executeForceList(editor: any, config: any) {
   const model = editor.model;
   const firstElement = editor.model.document.getRoot().getChild(0) as any;
   if(config?.forceList && firstElement && firstElement.name !== 'numList') {
-    const numList = model.change( (writer: any) => {
-      const insertPos = writer.createPositionAt(model.document.getRoot(), 0);
+    // cria um num list e move todo o conteudo para dento dele
+    model.change( (writer: any) => {
+      const root = model.document.getRoot();
       const numList = writer.createElement('numList', {
         'data-block': 'true',
         'start': config?.forceList ? config.forceList + 1 : null
       });
-      writer.insert(numList, insertPos);
-      return numList;
-    });
-
-    model.change( (writer: any) => {
-      const root = model.document.getRoot();
+      writer.insert(numList, writer.createPositionAt(root, 0));
+      const secondNumList = writer.createElement('numList');
+      writer.insert(secondNumList, writer.createPositionAt(numList, 0));
       const itemsToMove = [];
       for ( const child of root.getChildren() ) {
         if ( child !== numList ) {
@@ -520,10 +588,35 @@ function executeForceList(editor: any, config: any) {
         }
       }
       for ( const item of itemsToMove ) {
-        const numItem = writer.createElement('numList');
-        writer.insert( numItem, writer.createPositionAt( numList, 'end' ) );
-        writer.move( writer.createRangeOn( item ), writer.createPositionAt( numItem, 0 ) );
+        writer.move( writer.createRangeOn( item ), writer.createPositionAt( secondNumList, 0 ) );
       }
     });
+
+
+
+    // const numList = model.change( (writer: any) => {
+    //   const insertPos = writer.createPositionAt(model.document.getRoot(), 0);
+    //   const numList = writer.createElement('numList', {
+    //     'data-block': 'true',
+    //     'start': config?.forceList ? config.forceList + 1 : null
+    //   });
+    //   writer.insert(numList, insertPos);
+    //   return numList;
+    // });
+
+    // model.change( (writer: any) => {
+    //   const root = model.document.getRoot();
+    //   const itemsToMove = [];
+    //   for ( const child of root.getChildren() ) {
+    //     if ( child !== numList ) {
+    //       itemsToMove.push(child);
+    //     }
+    //   }
+    //   for ( const item of itemsToMove ) {
+    //     const numItem = writer.createElement('numList');
+    //     writer.insert( numItem, writer.createPositionAt( numList, 'end' ) );
+    //     writer.move( writer.createRangeOn( item ), writer.createPositionAt( numItem, 0 ) );
+    //   }
+    // });
   }
 }
