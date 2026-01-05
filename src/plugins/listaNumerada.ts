@@ -1,9 +1,6 @@
 import { Plugin, Command } from '@ckeditor/ckeditor5-core';
 import { findOptimalInsertionRange } from '@ckeditor/ckeditor5-widget/src/utils';
 import { keyCodes } from '@ckeditor/ckeditor5-utils/src/keyboard';
-import { uid } from '@ckeditor/ckeditor5-utils';
-// @ts-ignore
-import $, { isArray } from "jquery"; 
 
 export default class NumberedDivList extends Plugin {
   static get pluginName() {
@@ -134,7 +131,7 @@ export default class NumberedDivList extends Plugin {
     });
 
     let firstConversion = true;
-    let nivelAtual = 1;
+    let nivelAtual = config?.forceList ? 1 : 0;
     let lastItemAdded = {} as any;
     editor.conversion.for('upcast').add( dispatcher => {
       dispatcher.on( 'element:p', async ( evt, data, conversionApi ) => {
@@ -151,7 +148,6 @@ export default class NumberedDivList extends Plugin {
 
         if(classAttr && (classAttr.match(/Item_Nivel(\d+)/) || classAttr.match(/Paragrafo_Numerado_Nivel(\d+)/))) {
           const nivelLocal = parseInt(classAttr.replace(/\D/g, '') ?? 0);
-          console.log(nivelLocal);
           
           if ( !consumable.test( viewItem, { name: true } ) ) {
             return;
@@ -160,14 +156,12 @@ export default class NumberedDivList extends Plugin {
           
           consumable.consume( viewItem, { name: true } );
 
-          if(!config?.forceList || nivelLocal > nivelAtual) {
-            console.log('entrou no if')
+          if(nivelLocal > nivelAtual) {
             const numList = writer.createElement('numList', { 'dataBlock': 'true' });
             let children = null;
 
-            if(nivelLocal > 2) {
+            if(nivelLocal > (config?.forceList ? 2 : 1)) {
               children = lastItemAdded[nivelLocal - 1].parent ?? null;
-              console.log('children', children)
             }
 
             const numItem = writer.createElement('numItem');
@@ -285,7 +279,7 @@ export default class NumberedDivList extends Plugin {
       'keydown',
       (evt, data) => {
         firstConversion = true;
-        nivelAtual = 1;
+        nivelAtual = config?.forceList ? 1 : 0;
         lastItemAdded = {} as any;
         const isBackspace = data.keyCode === keyCodes.backspace;
         const isDelete    = data.keyCode === keyCodes.delete;
