@@ -72,11 +72,17 @@ export default class ListView extends View {
     /**
      * @inheritDoc
      */
-    destroy() {
-        super.destroy();
-        this.focusTracker.destroy();
-        this.keystrokes.destroy();
-    }
+    // destroy() {
+    //     try {
+    //         super.destroy();
+    //     } catch (err) {}
+    //     try {
+    //         this.focusTracker.destroy();
+    //     } catch (err) {}
+    //     try {
+    //         this.keystrokes.destroy();
+    //     } catch (err) {}
+    // }
     /**
      * Focuses the first focusable in {@link #items}.
      */

@@ -141,7 +141,6 @@ export default class DocumentoModelo extends Plugin {
                         $(`.documentomodeloselect-${self.uid}`)
                         .select2(this.parametrosDocumentoModelo())
                         .on('select2:select', function (e) {
-                            console.log('selecionado', $(`#search-actions-documento-modelo-${self.uid}`));
                             $(`#search-actions-documento-modelo-${self.uid}`).show()
                             $(`#search-result-documento-modelo-${self.uid}`).html(e.target.value)
                         })
