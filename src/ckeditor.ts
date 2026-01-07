@@ -186,6 +186,36 @@ class Editor extends DecoupledEditor {
 					classes: true, // permite todas as classes em <p>
 					attributes: true, // permite todos os atributos
 					styles: true // permite todos os estilos
+				},
+				{
+					name: 'div',
+					classes: true, // permite todas as classes em <p>
+					attributes: true, // permite todos os atributos
+					styles: true // permite todos os estilos
+				},
+				{
+					name: 'table',
+					classes: true, // permite todas as classes em <p>
+					attributes: true, // permite todos os atributos
+					styles: true // permite todos os estilos
+				},
+				{
+					name: 'tr',
+					classes: true, // permite todas as classes em <p>
+					attributes: true, // permite todos os atributos
+					styles: true // permite todos os estilos
+				},
+				{
+					name: 'td',
+					classes: true, // permite todas as classes em <p>
+					attributes: true, // permite todos os atributos
+					styles: true // permite todos os estilos
+				},
+				{
+					name: 'numItem',
+					classes: true, // permite todas as classes em <p>
+					attributes: true, // permite todos os atributos
+					styles: true // permite todos os estilos
 				}
 			]
 		},

@@ -70,13 +70,10 @@ watchdog.create( document.querySelector( '.editor' ), {
 				}
 			}
 		},
-		seiOptions: {
-			url: '/api/teste',
-			resultData: 'data[0].autotexto',
-			erros: {
-				'404': 'Oops!!! Não foi possível encontrar o serviço.'
-			}
-		},
+        seiOptions: {
+            url: "https://compras.test/api/documento-modelo/sei",
+            resultData: 'documento_conteudo',
+        },
 		salvarComoOptions: {
 			url: '/api/teste',
 			options: [

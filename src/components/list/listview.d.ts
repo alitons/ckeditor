@@ -53,7 +53,7 @@ export default class ListView extends View<HTMLUListElement> implements Dropdown
     /**
      * @inheritDoc
      */
-    // destroy(): void;
+    destroy(): void;
     /**
      * Focuses the first focusable in {@link #items}.
      */

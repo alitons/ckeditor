@@ -27,6 +27,7 @@ export default class NumberedDivList extends Plugin {
       allowContentOf: '$root',
       allowAttributesOf: '$block',
       isLimit: true,
+      allowAttributes: ['dataStyle', 'dataBlock', 'style', 'class'],
     });
 
     const downcastAttr = (conv: any, key: 'dataStyle'|'dataBlock', viewKey: 'data-style'|'data-block') => {
@@ -130,7 +131,7 @@ export default class NumberedDivList extends Plugin {
       model: (viewElement, { writer }) => writer.createElement('numItem')
     });
 
-    let firstConversion = true;
+    let firstConversion = config?.forceList ? false : true;
     let nivelAtual = config?.forceList ? 1 : 0;
     let lastItemAdded = {} as any;
     editor.conversion.for('upcast').add( dispatcher => {
@@ -163,10 +164,10 @@ export default class NumberedDivList extends Plugin {
             if(nivelLocal > (config?.forceList ? 2 : 1)) {
               children = lastItemAdded[nivelLocal - 1].parent ?? null;
             }
-
+            
             const numItem = writer.createElement('numItem');
             writer.insert( numItem, writer.createPositionAt( numList, 'end' ) );
-            safeInsert( numList, !firstConversion ? writer.createPositionAt(children ?? data.modelCursor.parent, 'end') : data.modelCursor );
+            safeInsert( numList, !firstConversion && children ? writer.createPositionAt(children ?? data.modelCursor.parent, 'end') : data.modelCursor );
             convertChildren( viewItem, numItem );
             updateConversionResult( numList, data );
           
@@ -278,7 +279,7 @@ export default class NumberedDivList extends Plugin {
     viewDoc.on(
       'keydown',
       (evt, data) => {
-        firstConversion = true;
+        firstConversion = config?.forceList ? false : true;
         nivelAtual = config?.forceList ? 1 : 0;
         lastItemAdded = {} as any;
         const isBackspace = data.keyCode === keyCodes.backspace;
@@ -572,9 +573,9 @@ function executeForceList(editor: any, config: any) {
         'data-block': 'true',
         'start': config?.forceList ? config.forceList + 1 : null
       });
-      writer.insert(numList, writer.createPositionAt(root, 0));
+      writer.insert(numList, writer.createPositionAt(root, 'end'));
       const secondNumList = writer.createElement('numList');
-      writer.insert(secondNumList, writer.createPositionAt(numList, 0));
+      writer.insert(secondNumList, writer.createPositionAt(numList, 'end'));
       const itemsToMove = [];
       for ( const child of root.getChildren() ) {
         if ( child !== numList ) {
@@ -582,7 +583,7 @@ function executeForceList(editor: any, config: any) {
         }
       }
       for ( const item of itemsToMove ) {
-        writer.move( writer.createRangeOn( item ), writer.createPositionAt( secondNumList, 0 ) );
+        writer.move( writer.createRangeOn( item ), writer.createPositionAt( secondNumList, 'end' ) );
       }
     });
 
