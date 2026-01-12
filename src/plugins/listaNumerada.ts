@@ -189,6 +189,73 @@ export default class NumberedDivList extends Plugin {
       }, { priority: 'high' } );
     });
 
+    // ação para observar se um numList foi adicionado
+    editor.model.document.on('change:data', () => {
+      const model = editor.model;
+      const root = model.document.getRoot();
+      if(root) {
+        checkChildrenIsList(root, 0);
+      }
+    });
+
+    async function checkChildrenIsList(contents: any, nivel: number) {
+      for await ( const child of contents.getChildren() ) {
+        // verifica se o elemento acima é um numItem
+        const elementBefore = child?.index > 0 ? child.parent.getChild(child.index - 1) : null;
+        if ( child?.is('element', 'numList') ) {
+          if(elementBefore?.is('element', 'numItem')) {
+            // move todo o numList para dentro do numItem acima
+            editor.model.change( (writer: any) => {
+              writer.move( writer.createRangeOn( child ), writer.createPositionAt( elementBefore, 'end' ) );
+            });
+          }
+
+          const parent = child?.parent;
+          if(parent?.is('element', 'numList') && !parent?.parent.is('element', '$root')) {
+            let vazio = true;
+            for ( const subChild of parent.getChildren() ) {
+              if ( subChild?.is('element', 'numItem') ) {
+                vazio = false;
+                break;
+              }
+            }
+            if(vazio) {
+              editor.model.change( (writer: any) => {
+                const itens = [];
+                for ( const item of child.getChildren() ) {
+                  itens.push(item);
+                }
+                for ( const item of itens ) {
+                  writer.move( writer.createRangeOn( item ), writer.createPositionAt( parent, 'end' ) );
+                }
+                writer.remove( child );
+              });
+            }
+          }
+
+          checkChildrenIsList(child, nivel + 1);
+        } else if ( !child.is('element', 'numItem') && elementBefore?.is('element', 'numItem') ) {
+          // verifica se tem style
+          const getStyles = child?.getAttribute('htmlPAttributes') ?? child?.getAttribute('style') ?? null;
+          if(getStyles) {
+            const styles = getStyles.styles ?? getStyles ?? null;
+            if(styles) {
+              for await( const key of Object.keys(styles) ) {
+                if(['font-size', 'margin', 'margin-top', 'margin-bottom', 'margin-left', 'margin-right', 'text-indent', 'word-spacing'].includes(key)) {
+                  styles[key] = styles[key]?.replaceAll('pt', 'px');
+                }
+                if(['font-size'].includes(key) && ['small', 'medium', 'large', 'x-large', 'xx-large'].includes(styles[key])) {
+                  delete styles[key];
+                }
+              }
+            }
+          }
+          editor.model.change( (writer: any) => {
+            writer.move( writer.createRangeOn( child ), writer.createPositionAt( elementBefore, 'end' ) );
+          });
+        }
+      }
+    }
 
     const viewDoc = editor.editing.view.document;
 
@@ -586,32 +653,5 @@ function executeForceList(editor: any, config: any) {
         writer.move( writer.createRangeOn( item ), writer.createPositionAt( secondNumList, 'end' ) );
       }
     });
-
-
-
-    // const numList = model.change( (writer: any) => {
-    //   const insertPos = writer.createPositionAt(model.document.getRoot(), 0);
-    //   const numList = writer.createElement('numList', {
-    //     'data-block': 'true',
-    //     'start': config?.forceList ? config.forceList + 1 : null
-    //   });
-    //   writer.insert(numList, insertPos);
-    //   return numList;
-    // });
-
-    // model.change( (writer: any) => {
-    //   const root = model.document.getRoot();
-    //   const itemsToMove = [];
-    //   for ( const child of root.getChildren() ) {
-    //     if ( child !== numList ) {
-    //       itemsToMove.push(child);
-    //     }
-    //   }
-    //   for ( const item of itemsToMove ) {
-    //     const numItem = writer.createElement('numList');
-    //     writer.insert( numItem, writer.createPositionAt( numList, 'end' ) );
-    //     writer.move( writer.createRangeOn( item ), writer.createPositionAt( numItem, 0 ) );
-    //   }
-    // });
   }
 }

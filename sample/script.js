@@ -14,23 +14,17 @@ watchdog.setCreator( ( element, config ) => {
 watchdog.create( document.querySelector( '.editor' ), {
 	toolbar: {
 		autoTextoOptions: {
-			options: [
-				{
-					autotexto: 'teste 1',
-					titulo: 'Primeiro teste'
-				}
-			],
 			ajax: {
-				url: '/api/teste',
+				url: "https://compras.test/api/autotexto",
 				method: 'GET',
 				data: {
-					usuario: 'usuario',
+					tipo: 'autotexto',
 				},
 				results: {
 					autotexto: 'autotexto',
 					titulo: 'titulo'
 				}
-			}
+			},
 		},
 		documentoModeloOptions: {
 			categoria: {

@@ -1,3 +1,8 @@
+.ck.ck-content {    
+    font-family: "Times New Roman", Times, serif;
+    font-size: 11pt;
+}
+
 figure {
     max-width: 100%;
 }
